@@ -59,7 +59,7 @@ const unprocessed = [
 
       <v-row v-if="tab === 0">
         <v-col v-for="(item, index) in processed" :key="index" cols="6">
-          <v-dialog max-width="500">
+          <v-dialog max-width="800">
             <template v-slot:activator="{ props: activatorProps }">
               <v-card
                 v-bind="activatorProps"
@@ -83,20 +83,31 @@ const unprocessed = [
             </template>
 
             <template v-slot:default="{ isActive }">
-              <v-card title="Dialog">
-                <v-card-text>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-
+              <v-card style="overflow: hidden;">
+                <v-toolbar>
+                  <v-toolbar-title>Информация о записи</v-toolbar-title>
                   <v-btn
-                    text="Close Dialog"
+                    icon="mdi-close"
                     @click="isActive.value = false"
                   ></v-btn>
-                </v-card-actions>
+                </v-toolbar>
+
+                <v-card-text>
+                  <v-row>
+                    <v-col cols="3"><b>Организация</b></v-col>
+                    <v-col>{{ item.organizationName }}</v-col>
+                  </v-row>
+
+                  <v-row>
+                    <v-col cols="3"><b>Услуга</b></v-col>
+                    <v-col>{{ item.orderType }}</v-col>
+                  </v-row>
+
+                  <v-row class="mb-2">
+                    <v-col cols="3"><b>Дата и время</b></v-col>
+                    <v-col>{{ item.date }} {{ item.time }}</v-col>
+                  </v-row>
+                </v-card-text>
               </v-card>
             </template>
           </v-dialog>
