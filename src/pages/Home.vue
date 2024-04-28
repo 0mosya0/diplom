@@ -8,31 +8,26 @@ function openLoginPage() {
 */
 </script>
 
-
 <template>
-  <NavBar/>
+  <div>
+    <NavBar />
     <v-container class="fill-height">
-      <v-responsive
-        class="align-centerfill-height mx-auto"
-        max-width="900"
-      >
-        <v-img
-          class="mb-4"
-          height="150"
-          src="@/assets/logo.png"
-        />
-  
+      <v-responsive class="align-centerfill-height mx-auto" max-width="900">
+        <v-img class="mb-4" height="150" src="@/assets/logo.png" />
+
         <div class="text-center">
-          <div class="text-body-2 font-weight-light mb-n1">Добро пожаловать в систему</div>
-  
+          <div class="text-body-2 font-weight-light mb-n1">
+            Добро пожаловать в систему
+          </div>
+
           <h1 class="text-h2 font-weight-bold">Vuetify</h1>
-          
-          <v-btn class="mx-2 my-4" to='login'>Вход</v-btn>
-          <v-btn class="my-4" to='registration'>Регистрация</v-btn>
+
+          <v-btn class="mx-2 my-4" to="login">Вход</v-btn>
+          <v-btn class="my-4" to="registration">Регистрация</v-btn>
         </div>
-  
+
         <div class="py-4" />
-  
+
         <!-- <v-row>
           <v-col cols="12">
             <v-card
@@ -165,4 +160,5 @@ function openLoginPage() {
         </v-row> -->
       </v-responsive>
     </v-container>
-  </template>
+  </div>
+</template>
