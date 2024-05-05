@@ -27,6 +27,7 @@ const processed = [
   {
     organizationName: "Центр цифрового развития",
     orderType: "Прием граждан",
+    
     date: "12.08.2024",
     time: "",
     icon: "mdi-text-box-outline",
@@ -46,7 +47,7 @@ const unprocessed = [
 
 <template>
   <v-container class="fill-height">
-    <v-responsive class="align-centerfill-height mx-auto" max-width="900">
+    <v-responsive class="fill-height mx-auto" max-width="900">
       <v-tabs
         v-model="tab"
         align-tabs="center"
@@ -59,7 +60,7 @@ const unprocessed = [
 
       <v-row v-if="tab === 0">
         <v-col v-for="(item, index) in processed" :key="index" cols="6">
-          <v-dialog max-width="800">
+          <v-dialog class="ml-auto" max-width="800">
             <template v-slot:activator="{ props: activatorProps }">
               <v-card
                 v-bind="activatorProps"
