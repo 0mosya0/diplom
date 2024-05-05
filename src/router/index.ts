@@ -19,12 +19,16 @@ import Profile from "../pages/Profile.vue";
 import Info from "../pages/Info.vue";
 import OrganizationsInfo from "../pages/OrganizationsInfo.vue";
 import HelloWorld from "../components/HelloWorld.vue";
+import ProfileAdmin from "@/pages/ProfileAdmin.vue";
+import ProfileOrganizationAdmin from "@/pages/ProfileOrganizationAdmin.vue";
 
 const routes = [
   { path: "/", component: Home },
   { path: "/login", component: Login },
   { path: "/registration", component: SignUp },
   { path: "/profile", component: Profile },
+  { path: "/profile-admin", component: ProfileAdmin },
+  { path: "/profile-organization", component: ProfileOrganizationAdmin },
   { path: "/info", component: Info },
   { path: "/org-info", component: OrganizationsInfo },
   { path: "/about", component: HelloWorld },

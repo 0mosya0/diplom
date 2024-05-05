@@ -23,6 +23,16 @@ const value = ref(1);
         Личный кабинет
       </v-btn>
 
+      <v-btn to="/profile-admin">
+        <v-icon>mdi-heart</v-icon>
+        Админ
+      </v-btn>
+
+      <v-btn to="/profile-organization">
+        <v-icon>mdi-heart</v-icon>
+        Админ организации
+      </v-btn>
+
       <v-btn to="/org-info">
         <v-icon>mdi-domain</v-icon>
         Организациям

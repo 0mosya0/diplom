@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ORGANIZATIONS } from "@/constants/organizations";
 import { computed, onMounted, ref, watch } from "vue";
 import type { Ref } from "vue";
 
@@ -8,6 +9,9 @@ const selectedDayTimesList: Ref<string[]> = ref([]);
 const hasAvailableSlots = computed(() =>
   Boolean(selectedDayTimesList.value.length)
 );
+
+const organizations = ORGANIZATIONS.map((item) => item.name);
+const services = ["Прием ЛОРа", "Прием офтальмолога"];
 
 const availableDates = [
   "2024-05-01",
@@ -105,16 +109,22 @@ function allowedDates(value: Date) {
 <template>
   <v-container class="fill-height d-flex">
     <v-responsive class="align-center fill-height mx-auto" max-width="900">
-      <v-row>
-        <v-col cols="4">Выберите организацию</v-col>
+      <v-row align="center" class="mt-0">
+        <v-col cols="4">Организация</v-col>
         <v-col cols="8">
-          <v-select></v-select>
+          <v-autocomplete
+            placeholder="Выберите организацию"
+            :items="organizations"
+          ></v-autocomplete>
         </v-col>
       </v-row>
-      <v-row>
-        <v-col cols="4">Выберите тип услуги</v-col>
+      <v-row align="center" class="mt-0">
+        <v-col cols="4">Тип услуги</v-col>
         <v-col cols="8">
-          <v-select></v-select>
+          <v-autocomplete
+            placeholder="Выберите услугу"
+            :items="services"
+          ></v-autocomplete>
         </v-col>
       </v-row>
       <v-row>
