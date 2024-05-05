@@ -4,7 +4,7 @@
     "jsx": "preserve",
     "lib": ["DOM", "ESNext"],
     "baseUrl": ".",
-    "module": "ESNext",
+    "module": "es2015",
     "moduleResolution": "node",
     "paths": {
       "@/*": ["src/*"]
@@ -24,7 +24,7 @@
     "isolatedModules": true,
     "skipLibCheck": true
   },
-  "include": ["./src/typed-router.d.ts"],
+  "include": ["./src/**/*.vue"],
   "exclude": ["dist", "node_modules", "cypress"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
