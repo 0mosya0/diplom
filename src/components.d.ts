@@ -10,11 +10,12 @@ declare module 'vue' {
     AppFooter: typeof import('./components/AppFooter.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     NavBar: typeof import('./components/NavBar.vue')['default']
+    NewOrder: typeof import('./components/NewOrder.vue')['default']
+    NewOrganization: typeof import('./components/NewOrganization.vue')['default']
     Orders: typeof import('./components/Orders.vue')['default']
     ProfileInfo: typeof import('./components/ProfileInfo.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    ThemeBtn: typeof import('./components/ThemeBtn.vue')['default']
     ThemeSwitcher: typeof import('./components/ThemeSwitcher.vue')['default']
   }
 }
