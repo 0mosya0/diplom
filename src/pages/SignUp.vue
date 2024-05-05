@@ -1,90 +1,89 @@
-<script>
-import router from '../router'
+<script setup lang="ts">
+import { ref } from "vue";
+import router from "@/router";
 
-export default {
-  data: () => ({
-    form: false,
-    email: null,
-    password: null,
-    loading: false,
-  }),
+const email = ref(null);
+const password = ref(null);
+const passwordRepeated = ref(null);
+const form = ref(true);
+const loading = ref(false);
 
-  methods: {
-    onSubmit () {
-      if (!this.form) return
+function onSubmit() {
+  if (!form.value) return;
 
-      this.loading = true
+  loading.value = true;
 
-      setTimeout(() => (this.loading = false), 2000)
-    },
-    required (v) {
-      return !!v || 'Поле обязательно для заполнения'
-    },
-    navigateTo (path) {
-      router.push(path);
-    }
-  },
+  setTimeout(() => (loading.value = false), 2000);
+}
+
+function required(value: string) {
+  return !!value || "Поле обязательно для заполнения";
+}
+
+function navigateTo(path: string) {
+  router.push(path);
 }
 </script>
 
 <template>
-  <v-img
-  src="/src/assets/login.jpg"
-  >
-  <NavBar/>
-  <v-card class="mx-auto px-6 py-8" max-width="364">
-        <v-form
-          v-model="form"
-          @submit.prevent="onSubmit"
+  <v-img src="/src/assets/login.jpg" height="100vh" cover>
+    <NavBar />
+    <v-card class="mx-auto px-6 py-8" max-width="364">
+      <v-form v-model="form" @submit.prevent="onSubmit">
+        <v-text-field
+          v-model="email"
+          :readonly="loading"
+          :rules="[required]"
+          class="mb-2"
+          label="Адрес электронной почты"
+          placeholder="Введите адрес электронной почты"
+          clearable
+        ></v-text-field>
+
+        <v-text-field
+          v-model="password"
+          class="mb-2"
+          :readonly="loading"
+          :rules="[required]"
+          label="Введите пароль"
+          placeholder="Введите пароль"
+          type="password"
+          clearable
+        ></v-text-field>
+
+        <v-text-field
+          v-model="passwordRepeated"
+          class="mb-2"
+          :readonly="loading"
+          :rules="[required]"
+          label="Повторите пароль"
+          placeholder="Введите пароль"
+          type="password"
+          clearable
+        ></v-text-field>
+
+        <v-btn
+          :disabled="!form"
+          :loading="loading"
+          color="success"
+          size="large"
+          type="submit"
+          variant="elevated"
+          block
         >
-          <v-text-field
-            v-model="email"
-            :readonly="loading"
-            :rules="[required]"
-            class="mb-2"
-            label="Адрес электронной почты"
-            placeholder="Введите адрес электронной почты"
-            clearable
-          ></v-text-field>
-  
-          <v-text-field
-            v-model="password"
-            class="mb-2"
-            :readonly="loading"
-            :rules="[required]"
-            label="Введите пароль"
-            placeholder="Введите пароль"
-            type="password"
-            clearable
-          ></v-text-field>
-  
-          <v-text-field
-            v-model="password"
-            class="mb-2"
-            :readonly="loading"
-            :rules="[required]"
-            label="Повторите пароль"
-            placeholder="Введите пароль"
-            type="password"
-            clearable
-          ></v-text-field>
-  
-          <v-btn
-            :disabled="!form"
-            :loading="loading"
-            color="success"
-            size="large"
-            type="submit"
-            variant="elevated"
-            block
+          Зарегистрироваться
+        </v-btn>
+
+        <div class="mt-4" align="center">
+          Уже зарегистрированы?
+          <span
+            class="cursor-pointer text-blue-lighten-3"
+            @click="navigateTo('login')"
           >
-            Зарегистрироваться
-          </v-btn>
-
-          <div class="mt-4" align="center">Уже зарегистрированы? <span class="cursor-pointer text-blue-lighten-3" @click="navigateTo('login')">Войти</span></div>
-
-
-        </v-form>
-      </v-card>
+            Войти
+          </span>
+        </div>
+      </v-form>
+    </v-card>
   </v-img>
-  </template>
+</template>
