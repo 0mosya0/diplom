@@ -36,6 +36,14 @@ const availableTime = [
     date: "2024-05-14",
     timeSlots: ["08:00"],
   },
+  {
+    date: "2024-05-17",
+    timeSlots: ["08:00", "09:00", "10:00", "11:00", "12:00"],
+  },
+  {
+    date: "2024-05-23",
+    timeSlots: ["14:00", "15:00", "16:00", "17:00", "18:00"],
+  },
 ];
 
 const getLocaleDate = (value: Date) =>

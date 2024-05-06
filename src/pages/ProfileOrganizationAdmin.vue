@@ -2,6 +2,9 @@
 import { computed, ref } from "vue";
 import router from "@/router";
 import OrganizationEdit from "@/components/OrganizationEdit.vue";
+import OrganizationOrders from "@/components/OrganizationOrders.vue";
+import OrganizationEmployees from "@/components/OrganizationEmployees.vue";
+import OrganizationServices from "@/components/OrganizationServices.vue";
 
 const selectedItem = ref("orders");
 
@@ -72,9 +75,9 @@ function updateSelection(value: string) {
 
       <v-main style="height: 100vh">
         <OrganizationEdit v-if="isProfileInfoActive" />
-        <Orders v-if="isOrdersActive" />
-        <NewOrder v-if="isEmployeesActive" />
-        <!-- <ProfileInfo v-if="isProfileInfoActive" /> -->
+        <OrganizationOrders v-if="isOrdersActive" />
+        <OrganizationEmployees v-if="isEmployeesActive" />
+        <OrganizationServices v-if="isServicesActive" />
       </v-main>
     </v-layout>
   </v-card>

@@ -1,28 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-const address = ref(null);
-const email = ref(null);
-const name = ref(null);
-const registrationNumber = ref(null);
+const address = ref("г. Минск ул. Ульяновская улица, д. 5");
+const email = ref("info@poliklinika6.by");
+const name = ref(
+  "6-я центральная районная клиническая поликлиника Ленинского района г. Минска"
+);
+const registrationNumber = ref("101224683");
 const loading = ref(false);
 const form = ref(true);
-
-const selectedServices = ref([]);
-const services = [
-  {
-    name: "Прием ЛОРа",
-  },
-  {
-    name: "Прием офтальмолога",
-  },
-  {
-    name: "Прием невролога",
-  },
-  {
-    name: "Прием хирурга",
-  },
-];
 
 function onSubmit() {
   if (!form.value) return;
@@ -66,6 +52,7 @@ function regNumber(value: string) {
               v-model="registrationNumber"
               :rules="[required, regNumber]"
               placeholder="123456789"
+              disabled
             ></v-text-field>
           </v-col>
         </v-row>
@@ -89,32 +76,6 @@ function regNumber(value: string) {
             ></v-text-field>
           </v-col>
         </v-row>
-
-        <!-- <v-row align="center">
-          <v-col cols="4">Перечень услуг</v-col>
-
-          <v-col class="pt-0">
-            <v-autocomplete
-              v-model="selectedServices"
-              :items="services"
-              color="blue-grey-lighten-2"
-              item-title="name"
-              item-value="name"
-              label="Выберете услуги"
-              chips
-              closable-chips
-              multiple
-            >
-              <template v-slot:chip="{ props, item }">
-                <v-chip v-bind="props" :text="item.raw.name"></v-chip>
-              </template>
-
-              <template v-slot:item="{ props, item }">
-                <v-list-item v-bind="props" :text="item.raw.name"></v-list-item>
-              </template>
-            </v-autocomplete>
-          </v-col>
-        </v-row> -->
 
         <v-row>
           <v-col align="end">
