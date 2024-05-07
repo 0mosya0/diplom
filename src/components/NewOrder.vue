@@ -127,7 +127,7 @@ function allowedDates(value: Date) {
         </v-col>
       </v-row>
       <v-row align="center" class="mt-0">
-        <v-col cols="4">Тип услуги</v-col>
+        <v-col cols="4">Услуга</v-col>
         <v-col cols="8">
           <v-autocomplete
             placeholder="Выберите услугу"

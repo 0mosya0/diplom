@@ -6,7 +6,12 @@ const search = ref("");
 const newService: Ref<string | null> = ref(null);
 
 const headers = [
-  { title: "Наименование услуги", value: "name", sortable: true },
+  {
+    title: "Наименование услуги",
+    value: "name",
+    sortable: true,
+  },
+  { title: "Электронный документ", value: "state" },
   {
     title: "Действия",
     value: "actions",
@@ -16,15 +21,23 @@ const headers = [
 const services = ref([
   {
     name: "Прием ЛОРа",
+    state: "Нет",
   },
   {
     name: "Прием офтальмолога",
+    state: "Нет",
   },
   {
     name: "Прием невролога",
+    state: "Нет",
   },
   {
     name: "Прием хирурга",
+    state: "Нет",
+  },
+  {
+    name: "Выписка из медицинской карты",
+    state: "Да",
   },
 ]);
 
@@ -53,7 +66,11 @@ function deleteService(index: number) {
           ></v-text-field>
         </v-col>
         <v-col>
+          <v-checkbox label="Электронный документ"></v-checkbox>
+        </v-col>
+        <v-col>
           <v-btn
+            class="mt-2"
             :disabled="!newService?.length"
             color="teal-darken-3"
             prepend-icon="mdi-playlist-plus"
@@ -80,6 +97,15 @@ function deleteService(index: number) {
         item-key="name"
         items-per-page="5"
       >
+        <template v-slot:[`item.state`]>
+          <div class="d-flex">
+            <v-checkbox indeterminate></v-checkbox>
+            <!--
+            <span class="mdi mdi-plus-thick"></span>
+            <span class="mdi mdi-minus-thick"></span>
+            -->
+          </div>
+        </template>
         <template v-slot:[`item.actions`]="{ item }">
           <div class="d-flex">
             <v-btn

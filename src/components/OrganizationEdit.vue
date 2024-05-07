@@ -7,6 +7,9 @@ const name = ref(
   "6-я центральная районная клиническая поликлиника Ленинского района г. Минска"
 );
 const registrationNumber = ref("101224683");
+const password = ref(null);
+const passwordNew = ref(null);
+const passwordNewRepeated = ref(null);
 const loading = ref(false);
 const form = ref(true);
 
@@ -81,6 +84,62 @@ function regNumber(value: string) {
           <v-col align="end">
             <v-btn :disabled="!form" color="blue-grey-darken-2"
               >Сохранить</v-btn
+            >
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-form>
+
+    <v-form v-model="form" @submit.prevent="onSubmit">
+      <h3>Изменить пароль</h3>
+      <v-card-text>
+        <v-row align="center" dense>
+          <v-col cols="4">Пароль</v-col>
+          <v-col>
+            <v-text-field
+              v-model="password"
+              class="mb-2"
+              :readonly="loading"
+              :rules="[required]"
+              placeholder="Введите пароль"
+              type="password"
+              clearable
+            ></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row align="center" dense class="mt-0">
+          <v-col cols="4">Новый пароль</v-col>
+          <v-col>
+            <v-text-field
+              v-model="passwordNew"
+              class="mb-2"
+              :readonly="loading"
+              :rules="[required]"
+              placeholder="Введите новый пароль"
+              type="password"
+              clearable
+            ></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row align="center" class="mt-0">
+          <v-col cols="4">Повторите новый пароль</v-col>
+          <v-col class="pt-0">
+            <v-text-field
+              v-model="passwordNewRepeated"
+              class="mb-2"
+              :readonly="loading"
+              :rules="[required]"
+              placeholder="Введите пароль"
+              type="password"
+              clearable
+            ></v-text-field>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col align="end">
+            <v-btn :disabled="!form" color="blue-grey-darken-2"
+              >Изменить пароль</v-btn
             >
           </v-col>
         </v-row>

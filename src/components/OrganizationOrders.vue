@@ -137,6 +137,13 @@ function decline(item: any) {
             <v-dialog class="ml-auto" max-width="600">
               <template v-slot:activator="{ props: activatorProps }">
                 <v-btn
+                  class="mr-2"
+                  size="small"
+                  color="deep-orange-darken-1"
+                  @click="decline(item)"
+                  >Отклонить</v-btn
+                >
+                <v-btn
                   v-bind="activatorProps"
                   size="small"
                   color="blue-grey-darken-2"
