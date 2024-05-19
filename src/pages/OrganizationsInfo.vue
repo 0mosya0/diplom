@@ -4,7 +4,7 @@ import { ref } from "vue";
 const address = ref(null);
 const email = ref(null);
 const name = ref(null);
-const registrationNumber = ref(null);
+const pan = ref(null);
 const showForm = ref(true);
 const loading = ref(false);
 const form = ref(true);
@@ -63,7 +63,7 @@ function regNumber(value: string) {
               <v-col cols="4">УНП организации</v-col>
               <v-col class="pt-0">
                 <v-text-field
-                  v-model="registrationNumber"
+                  v-model="pan"
                   :rules="[required, regNumber]"
                   placeholder="123456789"
                 ></v-text-field>

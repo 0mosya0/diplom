@@ -6,7 +6,7 @@ const email = ref("info@poliklinika6.by");
 const name = ref(
   "6-я центральная районная клиническая поликлиника Ленинского района г. Минска"
 );
-const registrationNumber = ref("101224683");
+const pan = ref("101224683");
 const password = ref(null);
 const passwordNew = ref(null);
 const passwordNewRepeated = ref(null);
@@ -52,7 +52,7 @@ function regNumber(value: string) {
           <v-col cols="4">УНП организации</v-col>
           <v-col class="pt-0">
             <v-text-field
-              v-model="registrationNumber"
+              v-model="pan"
               :rules="[required, regNumber]"
               placeholder="123456789"
               disabled

@@ -4,7 +4,7 @@ import { ref } from "vue";
 const address = ref(null);
 const email = ref(null);
 const name = ref(null);
-const registrationNumber = ref(null);
+const pan = ref(null);
 const password = ref(null);
 const passwordNew = ref(null);
 const passwordNewRepeated = ref(null);
@@ -47,7 +47,7 @@ function required(value: string) {
           <v-col cols="4">Номер паспорта</v-col>
           <v-col class="pt-0">
             <v-text-field
-              v-model="registrationNumber"
+              v-model="pan"
               :rules="[required]"
               placeholder="XXXXXXXXXXXXXX"
             ></v-text-field>

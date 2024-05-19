@@ -1,54 +1,82 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import axios from "axios";
 
 const tab = ref(0);
-const processed = [
-  {
-    organizationName: "Министерство связи и информатизации Республики Беларусь",
-    orderType: "Прием граждан",
-    date: "17.07.2024",
-    time: "11:00",
-    icon: "mdi-text-box-outline",
-  },
-  {
-    organizationName: "МЭО ГАИ ГУВД Мингорисполкома",
-    orderType: "Выдача водительского удостоверения",
-    date: "12.08.2024",
-    time: "09:00",
-    icon: "mdi-text-box-outline",
-  },
-  {
-    organizationName:
-      "Учреждение здравоохранения «33-я городская студенческая поликлиника»",
-    orderType: "Прием офтальмолога",
-    date: "14.05.2024",
-    time: "08:00",
-    icon: "mdi-text-box-outline",
-  },
-  {
-    organizationName: "ООО «Космосистемс»",
-    orderType: "Стрижка мужская",
-    date: "12.08.2024",
-    time: "",
-    icon: "mdi-text-box-outline",
-  },
-];
+const processed = ref([]);
+const unprocessed = ref([]);
+const services = ref([]);
+const organizations = ref([]);
+// const processed = [
+//   {
+//     organizationName: "Министерство связи и информатизации Республики Беларусь",
+//     orderType: "Прием граждан",
+//     date: "17.07.2024",
+//     time: "11:00",
+//     icon: "mdi-text-box-outline",
+//   },
+//   {
+//     organizationName: "МЭО ГАИ ГУВД Мингорисполкома",
+//     orderType: "Выдача водительского удостоверения",
+//     date: "12.08.2024",
+//     time: "09:00",
+//     icon: "mdi-text-box-outline",
+//   },
+//   {
+//     organizationName:
+//       "Учреждение здравоохранения «33-я городская студенческая поликлиника»",
+//     orderType: "Прием офтальмолога",
+//     date: "14.05.2024",
+//     time: "08:00",
+//     icon: "mdi-text-box-outline",
+//   },
+//   {
+//     organizationName: "ООО «Космосистемс»",
+//     orderType: "Стрижка мужская",
+//     date: "12.08.2024",
+//     time: "",
+//     icon: "mdi-text-box-outline",
+//   },
+// ];
 
-const unprocessed = [
-  {
-    organizationName:
-      "Учреждение здравоохранения «33-я городская студенческая поликлиника»",
-    orderType: "Выписка из медицинской карты",
-    icon: "mdi-text-box-outline",
-  },
-  {
-    organizationName: "ООО «Космосистемс»",
-    orderType: "Стрижка мужская",
-    date: "12.08.2024",
-    time: "",
-    icon: "mdi-text-box-outline",
-  },
-];
+// const unprocessed = [
+//   {
+//     organizationName:
+//       "Учреждение здравоохранения «33-я городская студенческая поликлиника»",
+//     orderType: "Выписка из медицинской карты",
+//     icon: "mdi-text-box-outline",
+//   },
+//   {
+//     organizationName: "ООО «Космосистемс»",
+//     orderType: "Стрижка мужская",
+//     date: "12.08.2024",
+//     time: "",
+//     icon: "mdi-text-box-outline",
+//   },
+// ];
+
+onMounted(async () => {
+  await getBookings();
+  await getOrganizations();
+  await getServices();
+});
+
+async function getBookings() {
+  try {
+    const { data } = await axios.get("api/v1/bookings/1/users");
+    const { content: bookingsList } = data;
+    processed.value = bookingsList;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+function formatDateTime(value: string) {
+  const dateArr = value.split("T");
+  const date = dateArr[0].split("-").reverse().join(".");
+  const time = dateArr[1].substring(0, dateArr[1].length - 3);
+  return `${date} ${time}`;
+}
 </script>
 
 <template>
@@ -75,7 +103,7 @@ const unprocessed = [
                 :prepend-icon="item.icon"
                 rel="noopener noreferrer"
                 rounded="lg"
-                :subtitle="item.orderType"
+                :subtitle="item.serviceName"
                 :title="item.organizationName"
                 variant="text"
               >
@@ -107,12 +135,12 @@ const unprocessed = [
 
                   <v-row>
                     <v-col cols="3"><b>Услуга</b></v-col>
-                    <v-col>{{ item.orderType }}</v-col>
+                    <v-col>{{ item.serviceName }}</v-col>
                   </v-row>
 
                   <v-row class="mb-2">
                     <v-col cols="3"><b>Дата и время</b></v-col>
-                    <v-col>{{ item.date }} {{ item.time }}</v-col>
+                    <v-col>{{ formatDateTime(item.dateTime) }}</v-col>
                   </v-row>
                 </v-card-text>
               </v-card>
@@ -132,7 +160,7 @@ const unprocessed = [
                 :prepend-icon="item.icon"
                 rel="noopener noreferrer"
                 rounded="lg"
-                :subtitle="item.orderType"
+                :subtitle="item.serviceName"
                 :title="item.organizationName"
                 variant="text"
               >
@@ -164,7 +192,7 @@ const unprocessed = [
 
                   <v-row>
                     <v-col cols="3" class="mb-2"><b>Услуга</b></v-col>
-                    <v-col>{{ item.orderType }}</v-col>
+                    <v-col>{{ item.serviceName }}</v-col>
                   </v-row>
 
                   <v-row v-if="item?.date && item?.time" class="mb-2">

@@ -1,18 +1,57 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import axios, { AxiosRequestConfig } from "axios";
+
+import { onMounted, ref } from "vue";
+
 import router from "@/router";
 
 const email = ref(null);
 const password = ref(null);
 const form = ref(true);
 const loading = ref(false);
+const isInvalidCredentials = ref(false);
 
-function onSubmit() {
+// onMounted(() => {
+//   axios
+//     .get("api/v1/logins")
+//     .then((response) => {
+//       console.log(response.data);
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//     });
+// });
+
+async function onSubmit() {
   if (!form.value) return;
 
-  loading.value = true;
+  // const data = {
+  //   email: email.value,
+  //   password: password.value,
+  // };
 
-  setTimeout(() => (loading.value = false), 2000);
+  loading.value = true;
+  try {
+    const { data: userRole } = await axios.post("api/v1/logins/auth", {
+      email: email.value,
+      password: password.value,
+    });
+
+    switch (userRole) {
+      case "service_admin":
+        navigateTo("/profile-admin");
+        return;
+      case "user":
+        navigateTo("/profile");
+        return;
+      case "org_admin":
+        navigateTo("/profile-organization");
+        return;
+    }
+  } catch (error) {
+    isInvalidCredentials.value = true;
+  }
+  loading.value = false;
 }
 
 function required(value: string) {
@@ -61,6 +100,10 @@ function navigateTo(path: string) {
         >
           Вход
         </v-btn>
+
+        <div v-if="isInvalidCredentials" class="mt-2 text-red-accent-4">
+          Неправильный логин или пароль
+        </div>
 
         <div class="mt-4">
           Новый пользователь?

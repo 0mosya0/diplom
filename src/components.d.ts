@@ -9,12 +9,10 @@ declare module 'vue' {
   export interface GlobalComponents {
     AppFooter: typeof import('./components/AppFooter.vue')['default']
     Applications: typeof import('./components/Applications.vue')['default']
-    copy: typeof import('./components/OrganizationOrders copy.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     NavBar: typeof import('./components/NavBar.vue')['default']
     NewOrder: typeof import('./components/NewOrder.vue')['default']
     Orders: typeof import('./components/Orders.vue')['default']
-    OrganizationApplications: typeof import('./components/OrganizationApplications.vue')['default']
     OrganizationEdit: typeof import('./components/OrganizationEdit.vue')['default']
     OrganizationEmployees: typeof import('./components/OrganizationEmployees.vue')['default']
     OrganizationOrders: typeof import('./components/OrganizationOrders.vue')['default']
