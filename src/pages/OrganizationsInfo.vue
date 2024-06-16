@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import axios from "axios";
 import { ref } from "vue";
 
 const address = ref(null);
@@ -8,6 +9,19 @@ const pan = ref(null);
 const showForm = ref(true);
 const loading = ref(false);
 const form = ref(true);
+
+async function createOrganizationOrder() {
+  try {
+    await axios.post("api/v1/orders", {
+      address: address.value,
+      email: email.value,
+      name: name.value,
+      pan: pan.value,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 function onSubmit() {
   if (!form.value) return;
@@ -92,7 +106,10 @@ function regNumber(value: string) {
 
             <v-row>
               <v-col align="end">
-                <v-btn :disabled="!form" color="blue-grey-darken-2"
+                <v-btn
+                  :disabled="!form"
+                  color="blue-grey-darken-2"
+                  @click="createOrganizationOrder"
                   >Отправить заявку</v-btn
                 >
               </v-col>
