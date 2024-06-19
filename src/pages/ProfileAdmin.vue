@@ -1,6 +1,30 @@
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
 import router from "@/router";
 import Applications from "@/components/Applications.vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
+
+const email = ref("");
+const fullName = ref("");
+
+const route = useRoute();
+
+onMounted(async () => {
+  await getUserInfo();
+});
+
+async function getUserInfo() {
+  try {
+    const { data: userInfo } = await axios.get(
+      `/api/v1/users/${route.params.id}`
+    );
+    email.value = userInfo.email;
+    fullName.value = userInfo.fullName;
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 function navigateTo(path: string) {
   router.replace(path);
@@ -14,7 +38,8 @@ function navigateTo(path: string) {
         <v-list>
           <v-list-item
             prepend-icon="mdi-account-outline"
-            title="Администратор"
+            :title="fullName"
+            :subtitle="email"
           ></v-list-item>
         </v-list>
 

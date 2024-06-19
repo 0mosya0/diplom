@@ -18,17 +18,17 @@ const value = ref(1);
         Главная
       </v-btn>
 
-      <v-btn to="/profile">
+      <v-btn to="/profile/1">
         <v-icon>mdi-heart</v-icon>
         Личный кабинет
       </v-btn>
 
-      <v-btn to="/profile-admin">
+      <v-btn to="/profile-admin/103">
         <v-icon>mdi-heart</v-icon>
         Админ
       </v-btn>
 
-      <v-btn to="/profile-organization">
+      <v-btn to="/profile-organization/56">
         <v-icon>mdi-heart</v-icon>
         Админ организации
       </v-btn>

@@ -57,15 +57,14 @@ const organizations = ref([]);
 
 onMounted(async () => {
   await getBookings();
-  await getOrganizations();
-  await getServices();
 });
 
 async function getBookings() {
   try {
-    const { data } = await axios.get("api/v1/bookings/1/users");
+    const { data } = await axios.get("/api/v1/bookings/1/users");
     const { content: bookingsList } = data;
-    processed.value = bookingsList;
+    processed.value = bookingsList.filter((booking) => booking.isProcessed);
+    unprocessed.value = bookingsList.filter((booking) => !booking.isProcessed);
   } catch (error) {
     console.log(error);
   }
@@ -138,7 +137,12 @@ function formatDateTime(value: string) {
                     <v-col>{{ item.serviceName }}</v-col>
                   </v-row>
 
-                  <v-row class="mb-2">
+                  <v-row v-if="item.employeeFullName">
+                    <v-col cols="3"><b>ФИО сотрудника</b></v-col>
+                    <v-col>{{ item.employeeFullName }}</v-col>
+                  </v-row>
+
+                  <v-row v-if="item.dateTime" class="mb-2">
                     <v-col cols="3"><b>Дата и время</b></v-col>
                     <v-col>{{ formatDateTime(item.dateTime) }}</v-col>
                   </v-row>

@@ -1,23 +1,67 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import router from "@/router";
+import axios from "axios";
+
+interface UserInfo {
+  id: number;
+  fullName: string;
+  email: string;
+}
 
 const email = ref(null);
 const password = ref(null);
 const passwordRepeated = ref(null);
 const form = ref(true);
 const loading = ref(false);
+const users = ref<string[]>([]);
 
-function onSubmit() {
+onMounted(async () => {
+  await getUsersList();
+});
+
+async function getUsersList() {
+  try {
+    const { data } = await axios.get("/api/v1/users");
+    const { content: usersList } = data;
+    users.value = usersList.map((user: UserInfo) => user.email);
+    console.log(users.value);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function onSubmit() {
   if (!form.value) return;
 
-  loading.value = true;
+  const newUserId = await createUser();
+  navigateTo(`/profile/${newUserId}`);
+}
 
-  setTimeout(() => (loading.value = false), 2000);
+async function createUser() {
+  loading.value = true;
+  try {
+    const { data: newUserId } = await axios.post("api/v1/users", {
+      email: email.value,
+      password: password.value,
+    });
+    return newUserId;
+  } catch (error) {
+    console.log(error);
+  }
+  loading.value = false;
+}
+
+function unique(value: string) {
+  return !users.value.includes(value) || "Электронная почта уже используется";
 }
 
 function required(value: string) {
   return !!value || "Поле обязательно для заполнения";
+}
+
+function samePasswords() {
+  return password.value === passwordRepeated.value || "Пароли не совпадают";
 }
 
 function navigateTo(path: string) {
@@ -33,7 +77,7 @@ function navigateTo(path: string) {
         <v-text-field
           v-model="email"
           :readonly="loading"
-          :rules="[required]"
+          :rules="[required, unique]"
           class="mb-2"
           label="Адрес электронной почты"
           placeholder="Введите адрес электронной почты"
@@ -55,7 +99,7 @@ function navigateTo(path: string) {
           v-model="passwordRepeated"
           class="mb-2"
           :readonly="loading"
-          :rules="[required]"
+          :rules="[required, samePasswords]"
           label="Повторите пароль"
           placeholder="Введите пароль"
           type="password"

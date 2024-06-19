@@ -62,7 +62,7 @@ watch(
 async function getApplications() {
   loading.value = true;
   try {
-    const { data } = await axios.get("api/v1/orders", {
+    const { data } = await axios.get("/api/v1/orders", {
       params: {
         isProcessed: false,
       },
@@ -78,7 +78,7 @@ async function getApplications() {
 async function getOrganizations() {
   loading.value = true;
   try {
-    const { data } = await axios.get("api/v1/orders", {
+    const { data } = await axios.get("/api/v1/orders", {
       params: {
         isProcessed: true,
       },
@@ -94,7 +94,7 @@ async function getOrganizations() {
 async function accept(itemId: number) {
   loading.value = true;
   try {
-    const { data } = await axios.patch(`api/v1/orders/${itemId}/approving`);
+    const { data } = await axios.patch(`/api/v1/orders/${itemId}/approving`);
     const { content: unprocessedList } = data;
     processed.value = unprocessedList;
   } catch (error) {
@@ -109,7 +109,7 @@ async function decline(itemId: number) {
   console.log(itemId, refusalReason.value);
 
   try {
-    await axios.patch(`api/v1/orders/${itemId}/rejecting`, {
+    await axios.patch(`/api/v1/orders/${itemId}/rejecting`, {
       refusalReason: refusalReason.value,
     });
     // const { content: unprocessedList } = data;

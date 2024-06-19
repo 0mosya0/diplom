@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import axios from "axios";
 
-import { ORGANIZATIONS } from "@/constants/organizations";
 import { computed, onMounted, ref, watch } from "vue";
-import type { Ref } from "vue";
+import { useRoute } from "vue-router";
 
-const selectedDate: Ref<Date> = ref(new Date());
-const selectedDayTimesList: Ref<string[]> = ref([]);
+const selectedDate = ref<Date>(new Date());
+const selectedDayTimesList = ref<string[]>([]);
 const selectedOrganization = ref(null);
 const selectedService = ref(null);
 const selectedTime = ref(null);
@@ -15,49 +14,18 @@ const hasAvailableSlots = computed(() =>
   Boolean(selectedDayTimesList.value.length)
 );
 
+const showTimePicker = computed(
+  () => selectedService?.value && !selectedService?.value?.hasFile
+);
+
 const organizations = ref([]);
 const services = ref([]);
 const schedule = ref([]);
 const availableDates = ref([]);
 const availableTime = ref([]);
 const employeeId = ref(null);
-const userId = ref(1);
 
-// const organizations = ORGANIZATIONS.map((item) => item.name);
-// const services = ["Прием ЛОРа", "Прием офтальмолога"];
-
-// const availableDates = [
-//   "2024-05-01",
-//   "2024-05-03",
-//   "2024-05-04",
-//   "2024-05-05",
-//   "2024-05-14",
-//   "2024-05-16",
-//   "2024-05-17",
-//   "2024-05-21",
-//   "2024-05-23",
-//   "2024-05-31",
-//   "2024-06-01",
-// ];
-
-// const availableTime = [
-//   {
-//     date: "2024-05-05",
-//     timeSlots: ["09:00", "12:00"],
-//   },
-//   {
-//     date: "2024-05-14",
-//     timeSlots: ["08:00"],
-//   },
-//   {
-//     date: "2024-05-17",
-//     timeSlots: ["08:00", "09:00", "10:00", "11:00", "12:00"],
-//   },
-//   {
-//     date: "2024-05-23",
-//     timeSlots: ["14:00", "15:00", "16:00", "17:00", "18:00"],
-//   },
-// ];
+const route = useRoute();
 
 const getLocaleDate = (value: Date) =>
   value.toLocaleDateString().split(".").reverse().join("-");
@@ -73,23 +41,10 @@ onMounted(() => {
   getOrganizations();
 });
 
-// watch(
-//   selectedDate,
-//   (value) => {
-//     selectedDayTimesList.value =
-//       availableTime.find((item) => item.date === getLocaleDate(value))
-//         ?.timeSlots ?? [];
-//   },
-//   {
-//     immediate: true,
-//   }
-// );
-
 watch(selectedOrganization, (value, oldValue) => {
   if (value !== oldValue) {
     getServices(value.id);
   }
-  // console.log(selectedOrganization.value);
 });
 
 watch(selectedService, async (value, oldValue) => {
@@ -99,7 +54,6 @@ watch(selectedService, async (value, oldValue) => {
     employeeId.value = await getEmployeeByService(value.id);
     await getSchedule(employeeId.value!);
   }
-  // console.log(selectedOrganization.value);
 });
 
 watch(
@@ -113,12 +67,7 @@ watch(
         const time: string = item.split("T")[1];
         return time.substring(0, time.length - 3);
       });
-      // availableTime.value = availableDates.value.filter(
-      //   (item) => item.split("T")[0] === value
-      // );
-      console.log(timeThisDay);
     }
-    // console.log(selectedOrganization.value);
   },
   {
     immediate: true,
@@ -127,7 +76,7 @@ watch(
 
 async function getOrganizations() {
   try {
-    const { data } = await axios.get("api/v1/organizations");
+    const { data } = await axios.get("/api/v1/organizations");
     const { content: organizationsList } = data;
     organizations.value = organizationsList;
   } catch (error) {
@@ -137,7 +86,7 @@ async function getOrganizations() {
 
 async function getServices(organizationId: number) {
   try {
-    const { data } = await axios.get(`api/v1/services/${organizationId}`);
+    const { data } = await axios.get(`/api/v1/services/${organizationId}`);
     const { content: servicesList } = data;
     services.value = servicesList;
     // .map((item) => item.name);
@@ -148,7 +97,7 @@ async function getServices(organizationId: number) {
 
 async function getEmployeeByService(serviceId: number) {
   try {
-    const { data } = await axios.get(`api/v1/employees/${serviceId}`);
+    const { data } = await axios.get(`/api/v1/employees/${serviceId}`);
     const { id } = data;
     return id;
   } catch (error) {
@@ -158,7 +107,7 @@ async function getEmployeeByService(serviceId: number) {
 
 async function getSchedule(employeeId: number) {
   try {
-    const { data } = await axios.get(`api/v1/schedules/${employeeId}`);
+    const { data } = await axios.get(`/api/v1/schedules/${employeeId}`);
     availableDates.value = data
       .filter((item) => !item.isBooked)
       .map((item) => item.workTime);
@@ -170,13 +119,25 @@ async function getSchedule(employeeId: number) {
 }
 
 async function createAppointment() {
+  const today = new Date();
+  const currentDate = getLocaleDate(today);
+  const booking = selectedService?.value.hasFile
+    ? {
+        isProcessed: false,
+        serviceId: selectedService.value.id,
+        dateTime: `${currentDate}T00:00:00`,
+        employeeId: 1,
+        userId: +route.params.id,
+      }
+    : {
+        isProcessed: true,
+        serviceId: selectedService.value.id,
+        dateTime: `${getLocaleDate(selectedDate.value)}T${selectedTime.value}`,
+        employeeId: employeeId.value,
+        userId: +route.params.id,
+      };
   try {
-    await axios.post("api/v1/bookings", {
-      serviceId: selectedService.value.id,
-      dateTime: `${getLocaleDate(selectedDate.value)}T${selectedTime.value}`,
-      employeeId: employeeId.value,
-      userId: 1,
-    });
+    await axios.post("/api/v1/bookings", booking);
   } catch (error) {
     console.log(error);
   }
@@ -228,7 +189,7 @@ function updateSelectedTime(value: string) {
           ></v-autocomplete>
         </v-col>
       </v-row>
-      <v-row>
+      <v-row v-if="showTimePicker">
         <v-col cols="4">Выберите дату и время</v-col>
         <v-col align="center" cols="8">
           <v-date-picker
@@ -242,7 +203,7 @@ function updateSelectedTime(value: string) {
         </v-col>
       </v-row>
 
-      <v-row style="height: 100px">
+      <v-row v-if="showTimePicker" style="height: 100px">
         <v-col cols="4"></v-col>
 
         <v-col v-if="!hasAvailableSlots" cols="8" align="center">

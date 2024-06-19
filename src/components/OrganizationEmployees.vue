@@ -1,66 +1,113 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
 
 const search = ref("");
 const name = ref(null);
 const loading = ref(false);
 const form = ref(true);
 
+const route = useRoute();
+
+interface ServiceItem {
+  hasFile: boolean;
+  id: number;
+  name: string;
+  organizationName: string;
+}
+
+interface EmployeeItem {
+  hasFile: boolean;
+  id: number;
+  fullName: string;
+  serviceName: string;
+}
+
 const headers = [
-  { title: "ФИО сотрудника", value: "employeeFullName", sortable: true },
-  { title: "Услуги", value: "employeeServices", sortable: true },
-  { title: "График работы", value: "employeeSchedule", sortable: true },
+  { title: "ФИО сотрудника", value: "fullName", sortable: true },
+  { title: "Услуги", value: "serviceName", sortable: true },
+  { title: "График работы", value: "rate", sortable: true },
   {
     title: "Действия",
     value: "actions",
   },
 ];
 
-const items = [
-  {
-    employeeFullName: "Иванов Иван Иванович",
-    employeeServices: "Прием ЛОРа",
-    employeeSchedule: "четные дни месяца 08:00-14:00",
-  },
-  {
-    employeeFullName: "Петров Петр Петрович",
-    employeeServices: "Прием офтальмолога",
-    employeeSchedule: "четные дни месяца 14:00-20:00",
-  },
-];
-
-const selectedServices = ref([]);
-const services = [
-  {
-    name: "Прием ЛОРа",
-  },
-  {
-    name: "Прием офтальмолога",
-  },
-  {
-    name: "Прием невролога",
-  },
-  {
-    name: "Прием хирурга",
-  },
-];
-
-const selectedSchedule = ref([]);
+const selectedServices = ref(null);
+const selectedSchedule = ref(null);
 const schedule = [
   {
-    name: "четные дни 8:00-14:00",
+    name: "Два через два",
   },
   {
-    name: "четные дни 14:00-20:00",
+    name: "Пять через два",
   },
 ];
+
+const employees = ref<EmployeeItem[]>([]);
+const services = ref<ServiceItem[]>([]);
+
+onMounted(async () => {
+  await getEmployees();
+  await getServices();
+});
+
+async function getEmployees() {
+  loading.value = true;
+  try {
+    const { data } = await axios.get(
+      `/api/v1/employees/organizations/${route.params.id}`
+    );
+    const { content } = data;
+    employees.value = content;
+  } catch (error) {
+    console.log(error);
+  }
+  loading.value = false;
+}
+
+async function getServices() {
+  loading.value = true;
+  try {
+    const { data } = await axios.get(`/api/v1/services/${route.params.id}`);
+    const { content } = data;
+    services.value = content.filter((item: ServiceItem) => !item.hasFile);
+  } catch (error) {
+    console.log(error);
+  }
+  loading.value = false;
+}
+
+async function addEmployee() {
+  loading.value = true;
+  try {
+    await axios.post("/api/v1/employees", {
+      fullName: name.value,
+      serviceId: +selectedServices.value!,
+      organizationId: +route.params.id,
+      rate: selectedSchedule.value,
+    });
+    getEmployees();
+  } catch (error) {
+    console.log(error);
+    loading.value = false;
+  }
+}
 
 function accept(item: any) {
   console.log(item);
 }
 
-function deleteEmployee(item: any) {
-  console.log(item);
+async function deleteEmployee(employeeId: number) {
+  loading.value = true;
+  try {
+    await axios.delete(`/api/v1/employees/${employeeId}`);
+    getEmployees();
+  } catch (error) {
+    console.log(error);
+    loading.value = false;
+  }
 }
 
 function onSubmit() {
@@ -131,17 +178,14 @@ function regNumber(value: string) {
 
                       <v-col class="pt-0">
                         <v-autocomplete
-                          v-model="selectedSchedule"
+                          v-model="selectedServices"
                           :items="services"
                           color="blue-grey-lighten-2"
                           item-title="name"
-                          item-value="name"
-                          label="Выберите услуги"
-                          chips
-                          closable-chips
-                          multiple
+                          item-value="id"
+                          label="Выберите услугу"
                         >
-                          <template v-slot:chip="{ props, item }">
+                          <!-- <template v-slot:chip="{ props, item }">
                             <v-chip
                               v-bind="props"
                               :text="item.raw.name"
@@ -153,7 +197,7 @@ function regNumber(value: string) {
                               v-bind="props"
                               :text="item.raw.name"
                             ></v-list-item>
-                          </template>
+                          </template> -->
                         </v-autocomplete>
                       </v-col>
                     </v-row>
@@ -163,17 +207,14 @@ function regNumber(value: string) {
 
                       <v-col class="pt-0">
                         <v-autocomplete
-                          v-model="selectedServices"
+                          v-model="selectedSchedule"
                           :items="schedule"
                           color="blue-grey-lighten-2"
                           item-title="name"
                           item-value="name"
                           label="Выберите время работы "
-                          chips
-                          closable-chips
-                          multiple
                         >
-                          <template v-slot:chip="{ props, item }">
+                          <!-- <template v-slot:chip="{ props, item }">
                             <v-chip
                               v-bind="props"
                               :text="item.raw.name"
@@ -185,14 +226,20 @@ function regNumber(value: string) {
                               v-bind="props"
                               :text="item.raw.name"
                             ></v-list-item>
-                          </template>
+                          </template> -->
                         </v-autocomplete>
                       </v-col>
                     </v-row>
 
                     <v-row>
                       <v-col align="end">
-                        <v-btn :disabled="!form" color="blue-grey-darken-2"
+                        <v-btn
+                          :disabled="!form"
+                          color="blue-grey-darken-2"
+                          @click="
+                            isActive.value = false;
+                            addEmployee();
+                          "
                           >Сохранить</v-btn
                         >
                       </v-col>
@@ -212,7 +259,7 @@ function regNumber(value: string) {
 
       <v-data-table
         :headers="headers"
-        :items="items"
+        :items="employees"
         :search="search"
         item-key="employeeFullName"
         items-per-page="5"
@@ -230,7 +277,7 @@ function regNumber(value: string) {
               class="mr-2"
               size="small"
               color="deep-orange-darken-1"
-              @click="deleteEmployee(items.indexOf(item))"
+              @click="deleteEmployee(item.id)"
               >Удалить</v-btn
             >
           </div>

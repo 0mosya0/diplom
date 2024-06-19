@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios, { AxiosRequestConfig } from "axios";
 
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 
 import router from "@/router";
 
@@ -25,27 +25,24 @@ const isInvalidCredentials = ref(false);
 async function onSubmit() {
   if (!form.value) return;
 
-  // const data = {
-  //   email: email.value,
-  //   password: password.value,
-  // };
-
   loading.value = true;
   try {
-    const { data: userRole } = await axios.post("api/v1/logins/auth", {
+    const { data: userInfo } = await axios.post("api/v1/logins/auth", {
       email: email.value,
       password: password.value,
     });
+    const { id, role } = userInfo;
 
-    switch (userRole) {
+
+    switch (role) {
       case "service_admin":
-        navigateTo("/profile-admin");
+        navigateTo(`/profile-admin/${id}`);
         return;
       case "user":
-        navigateTo("/profile");
+        navigateTo(`/profile/${id}`);
         return;
       case "org_admin":
-        navigateTo("/profile-organization");
+        navigateTo(`/profile-organization/${id}`);
         return;
     }
   } catch (error) {

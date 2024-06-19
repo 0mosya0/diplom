@@ -1,18 +1,27 @@
 <script setup lang="ts">
 import axios from "axios";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
-const address = ref(null);
-const email = ref(null);
-const name = ref(null);
-const pan = ref(null);
+const address = ref<string | null>(null);
+const email = ref<string | null>(null);
+const name = ref<string | null>(null);
+const pan = ref<string | null>(null);
 const showForm = ref(true);
 const loading = ref(false);
 const form = ref(true);
 
+const isFormField = computed(
+  () =>
+    name.value?.length &&
+    address.value?.length &&
+    pan.value?.length === 9 &&
+    email.value?.length
+);
+
 async function createOrganizationOrder() {
+  loading.value = true;
   try {
-    await axios.post("api/v1/orders", {
+    await axios.post("/api/v1/orders", {
       address: address.value,
       email: email.value,
       name: name.value,
@@ -21,14 +30,13 @@ async function createOrganizationOrder() {
   } catch (error) {
     console.log(error);
   }
+  loading.value = false;
 }
 
-function onSubmit() {
+async function onSubmit() {
   if (!form.value) return;
 
-  loading.value = true;
-
-  setTimeout(() => (loading.value = false), 2000);
+  await createOrganizationOrder();
 }
 
 function required(value: string) {
@@ -37,6 +45,13 @@ function required(value: string) {
 
 function regNumber(value: string) {
   return value.length === 9 || "Поле должно содержать 9 символов";
+}
+
+function clearForm() {
+  address.value = null;
+  email.value = null;
+  name.value = null;
+  pan.value = null;
 }
 </script>
 
@@ -106,12 +121,54 @@ function regNumber(value: string) {
 
             <v-row>
               <v-col align="end">
-                <v-btn
-                  :disabled="!form"
-                  color="blue-grey-darken-2"
-                  @click="createOrganizationOrder"
-                  >Отправить заявку</v-btn
-                >
+                <v-dialog class="ml-auto" max-width="250">
+                  <template v-slot:activator="{ props: activatorProps }">
+                    <v-btn
+                      v-bind="activatorProps"
+                      :disabled="!isFormField"
+                      color="blue-grey-darken-2"
+                      @click="createOrganizationOrder"
+                      >Отправить заявку
+                      <v-overlay
+                        opacity=".06"
+                        scrim="primary"
+                        contained
+                        model-value
+                        persistent
+                      />
+                    </v-btn>
+                  </template>
+
+                  <template v-slot:default="{ isActive }">
+                    <v-card style="overflow: hidden">
+                      <v-form v-model="form">
+                        <v-card-text class="d-flex flex-column justify-center">
+                          <v-row align="center" dense>
+                            <v-col>
+                              <div class="mx-auto" style="width: 175px">
+                                Ваша заявка отправлена!
+                              </div>
+                            </v-col>
+                          </v-row>
+
+                          <v-row>
+                            <v-btn
+                              class="mx-auto mb-2"
+                              size="small"
+                              color="teal-darken-3"
+                              @click="
+                                isActive.value = false;
+                                clearForm();
+                              "
+                            >
+                              ОК
+                            </v-btn>
+                          </v-row>
+                        </v-card-text>
+                      </v-form>
+                    </v-card>
+                  </template>
+                </v-dialog>
               </v-col>
             </v-row>
           </v-card-text>

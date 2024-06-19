@@ -1,15 +1,37 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import router from "@/router";
 import Orders from "@/components/Orders.vue";
 import NewOrder from "@/components/NewOrder.vue";
 import ProfileInfo from "@/components/ProfileInfo.vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
 
 const selectedItem = ref("new-order");
+const email = ref("");
+const fullName = ref("");
 
 const isNewOrderActive = computed(() => selectedItem.value === "new-order");
 const isOrdersActive = computed(() => selectedItem.value === "orders");
 const isProfileInfoActive = computed(() => selectedItem.value === "edit");
+
+const route = useRoute();
+
+onMounted(async () => {
+  await getUserInfo();
+});
+
+async function getUserInfo() {
+  try {
+    const { data: userInfo } = await axios.get(
+      `/api/v1/users/${route.params.id}`
+    );
+    email.value = userInfo.email;
+    fullName.value = userInfo.fullName;
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 function navigateTo(path: string) {
   router.replace(path);
@@ -27,8 +49,8 @@ function updateSelection(value: string) {
         <v-list>
           <v-list-item
             prepend-icon="mdi-account-outline"
-            subtitle="eliseenk0@gmail.com"
-            title="Елисеенко Илья"
+            :title="fullName"
+            :subtitle="email"
           ></v-list-item>
         </v-list>
 

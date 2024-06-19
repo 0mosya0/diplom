@@ -1,17 +1,39 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import router from "@/router";
 import OrganizationEdit from "@/components/OrganizationEdit.vue";
 import OrganizationOrders from "@/components/OrganizationOrders.vue";
 import OrganizationEmployees from "@/components/OrganizationEmployees.vue";
 import OrganizationServices from "@/components/OrganizationServices.vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
 
 const selectedItem = ref("orders");
+const email = ref("");
+const organizationName = ref("");
 
 const isOrdersActive = computed(() => selectedItem.value === "orders");
 const isProfileInfoActive = computed(() => selectedItem.value === "edit");
 const isServicesActive = computed(() => selectedItem.value === "services");
 const isEmployeesActive = computed(() => selectedItem.value === "employees");
+
+const route = useRoute();
+
+onMounted(async () => {
+  await getOrganizationInfo();
+});
+
+async function getOrganizationInfo() {
+  try {
+    const { data: organizationInfo } = await axios.get(
+      `/api/v1/organizations/${route.params.id}`
+    );
+    email.value = organizationInfo.email;
+    organizationName.value = organizationInfo.name;
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 function navigateTo(path: string) {
   router.replace(path);
@@ -29,7 +51,8 @@ function updateSelection(value: string) {
         <v-list>
           <v-list-item
             prepend-icon="mdi-domain"
-            title="info@poliklinika6.by"
+            :title="organizationName"
+            :subtitle="email"
           ></v-list-item>
         </v-list>
 

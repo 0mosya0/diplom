@@ -1,15 +1,66 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
+import { isEqual } from "lodash";
 
-const address = ref(null);
-const email = ref(null);
-const name = ref(null);
-const pan = ref(null);
+const location = ref<string | null>(null);
+const email = ref<string | null>(null);
+const fullName = ref<string | null>(null);
+const passportNumber = ref<string | null>(null);
 const password = ref(null);
 const passwordNew = ref(null);
 const passwordNewRepeated = ref(null);
 const loading = ref(false);
 const form = ref(true);
+
+const route = useRoute();
+
+interface OrganizationInfo {
+  location: string;
+  email: string;
+  fullName: string;
+  passportNumber: string;
+}
+
+const initialOrganizationInfo = ref<OrganizationInfo | null>(null);
+
+const isUserInfoUpdated = computed(
+  () =>
+    !isEqual(initialOrganizationInfo.value, {
+      location: location.value,
+      email: email.value,
+      fullName: fullName.value,
+      passportNumber: passportNumber.value,
+    })
+);
+const disabledUpdatePassword = computed(
+  () => !password.value && !passwordNew.value && !passwordNewRepeated.value
+);
+
+onMounted(async () => {
+  await getUserInfo();
+});
+
+async function getUserInfo() {
+  try {
+    const { data: organizationInfo } = await axios.get(
+      `/api/v1/users/${route.params.id}`
+    );
+    email.value = organizationInfo.email;
+    location.value = organizationInfo.location;
+    fullName.value = organizationInfo.fullName;
+    passportNumber.value = organizationInfo.passportNumber;
+    initialOrganizationInfo.value = {
+      location: location.value!,
+      email: email.value!,
+      fullName: fullName.value!,
+      passportNumber: passportNumber.value!,
+    };
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 function onSubmit() {
   if (!form.value) return;
@@ -37,7 +88,7 @@ function required(value: string) {
           <v-col cols="4">ФИО</v-col>
           <v-col>
             <v-text-field
-              v-model="name"
+              v-model="fullName"
               :rules="[required]"
               placeholder="Иванов Иван Иванович"
             ></v-text-field>
@@ -47,7 +98,7 @@ function required(value: string) {
           <v-col cols="4">Номер паспорта</v-col>
           <v-col class="pt-0">
             <v-text-field
-              v-model="pan"
+              v-model="passportNumber"
               :rules="[required]"
               placeholder="XXXXXXXXXXXXXX"
             ></v-text-field>
@@ -57,7 +108,7 @@ function required(value: string) {
           <v-col cols="4">Адрес</v-col>
           <v-col class="pt-0">
             <v-text-field
-              v-model="address"
+              v-model="location"
               :rules="[required]"
               placeholder="г. Минск, ул. Вокзальная 1, кв. 2, этаж 3"
             ></v-text-field>
@@ -76,7 +127,7 @@ function required(value: string) {
 
         <v-row>
           <v-col align="end">
-            <v-btn :disabled="!form" color="blue-grey-darken-2"
+            <v-btn :disabled="!isUserInfoUpdated" color="blue-grey-darken-2"
               >Сохранить</v-btn
             >
           </v-col>
@@ -132,7 +183,7 @@ function required(value: string) {
 
         <v-row>
           <v-col align="end">
-            <v-btn :disabled="!form" color="blue-grey-darken-2"
+            <v-btn :disabled="disabledUpdatePassword" color="blue-grey-darken-2"
               >Изменить пароль</v-btn
             >
           </v-col>

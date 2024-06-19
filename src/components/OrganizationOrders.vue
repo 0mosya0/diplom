@@ -1,10 +1,45 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
 
 const tab = ref(1);
 const search = ref("");
 const loading = ref(false);
 const form = ref(true);
+
+const processed = ref<[]>([]);
+const unprocessed = ref<[]>([]);
+const automatic = ref<[]>([]);
+
+const route = useRoute();
+
+onMounted(async () => {
+  await getOrders();
+});
+
+async function getOrders() {
+  loading.value = true;
+  try {
+    const { data } = await axios.get(`/api/v1/bookings`);
+    const { content } = data;
+    const organizationBookings = content.filter(
+      (booking) => booking.organizationId === +route.params.id
+    );
+    processed.value = organizationBookings.filter(
+      (booking) => booking.serviceHasFile && booking.isProcessed
+    );
+    unprocessed.value = organizationBookings.filter(
+      (booking) => booking.serviceHasFile && !booking.isProcessed
+    );
+    automatic.value = organizationBookings.filter(
+      (booking) => !booking.serviceHasFile
+    );
+  } catch (error) {
+    console.log(error);
+  }
+  loading.value = false;
+}
 
 function onSubmit() {
   if (!form.value) return;
@@ -15,36 +50,36 @@ function onSubmit() {
 }
 
 const headersProcessed = [
-  { title: "ФИО заказчика", value: "clientFullName", sortable: true },
+  { title: "ФИО заказчика", value: "userFullName", sortable: true },
   {
-    title: "Идентификационный номер паспорта заказчика",
-    value: "identificationNumber",
+    title: "Номер паспорта заказчика",
+    value: "userPassportNumber",
     sortable: true,
   },
   { title: "Наименование услуги", value: "serviceName", sortable: true },
   { title: "Файл", value: "fileName", sortable: true },
 ];
 
-const ordersProcessed = [
-  {
-    clientFullName: "Петрова Любовь Леонидовна",
-    identificationNumber: "123456787654321",
-    serviceName: "Выписка из медицинской карты",
-    fileName: "Выписка_Петрова_Л_Л.pdf",
-  },
-  {
-    clientFullName: "Синичкин Михаил Андреевич",
-    identificationNumber: "2143567589432617",
-    serviceName: "Выписка из медицинской карты",
-    fileName: "Выписка_Синичкин_М_А.pdf",
-  },
-];
+// const ordersProcessed = [
+//   {
+//     userFullName: "Петрова Любовь Леонидовна",
+//     userPassportNumber: "123456787654321",
+//     serviceName: "Выписка из медицинской карты",
+//     fileName: "Выписка_Петрова_Л_Л.pdf",
+//   },
+//   {
+//     userFullName: "Синичкин Михаил Андреевич",
+//     userPassportNumber: "2143567589432617",
+//     serviceName: "Выписка из медицинской карты",
+//     fileName: "Выписка_Синичкин_М_А.pdf",
+//   },
+// ];
 
 const headersUnprocessed = [
-  { title: "ФИО заказчика", value: "clientFullName", sortable: true },
+  { title: "ФИО заказчика", value: "userFullName", sortable: true },
   {
-    title: "Идентификационный номер паспорта заказчика",
-    value: "identificationNumber",
+    title: "Номер паспорта заказчика",
+    value: "userPassportNumber",
     sortable: true,
   },
   { title: "Наименование услуги", value: "serviceName", sortable: true },
@@ -54,35 +89,35 @@ const headersUnprocessed = [
   },
 ];
 
-const unprocessed = [
-  {
-    clientFullName: "Синичкин Константин Михайлович",
-    identificationNumber: "98764536217623456",
-    serviceName: "Выписка из медицинской карты",
-  },
-];
+// const unprocessed = [
+//   {
+//     userFullName: "Синичкин Константин Михайлович",
+//     userPassportNumber: "98764536217623456",
+//     serviceName: "Выписка из медицинской карты",
+//   },
+// ];
 
 const headersAutomatic = [
   { title: "ФИО сотрудника", value: "employeeFullName", sortable: true },
   { title: "Наименование услуги", value: "serviceName", sortable: true },
-  { title: "ФИО заказчика", value: "clientFullName", sortable: true },
-  { title: "Дата и время", value: "serviceDateTime", sortable: true },
+  { title: "ФИО заказчика", value: "userFullName", sortable: true },
+  { title: "Дата и время", value: "dateTime", sortable: true },
 ];
 
-const ordersAutomatic = [
-  {
-    clientFullName: "Синичкина Мария Ивановна",
-    serviceName: "Прием ЛОРа",
-    employeeFullName: "Иванов Иван Иванович",
-    serviceDateTime: "14.05.2024 08:00",
-  },
-  {
-    clientFullName: "Фролов Игорь Геннадьевич",
-    serviceName: "Прием офтальмолога",
-    employeeFullName: "Петров Петр Петрович",
-    serviceDateTime: "20.05.2024 16:00",
-  },
-];
+// const ordersAutomatic = [
+//   {
+//     userFullName: "Синичкина Мария Ивановна",
+//     serviceName: "Прием ЛОРа",
+//     employeeFullName: "Иванов Иван Иванович",
+//     serviceDateTime: "14.05.2024 08:00",
+//   },
+//   {
+//     userFullName: "Фролов Игорь Геннадьевич",
+//     serviceName: "Прием офтальмолога",
+//     employeeFullName: "Петров Петр Петрович",
+//     serviceDateTime: "20.05.2024 16:00",
+//   },
+// ];
 
 function accept(item: any) {
   console.log(item);
@@ -90,6 +125,15 @@ function accept(item: any) {
 
 function decline(item: any) {
   console.log(item);
+}
+
+function convertDateTime(value: string) {
+  const dateTimeArr = value.split("T");
+  const date = dateTimeArr[0].split("-").reverse().join(".");
+  const time = dateTimeArr[1].substring(0, dateTimeArr[1].length - 3);
+  console.log(date, time);
+  return `${date} ${time}`;
+  //  return value.toLocaleDateString().split(".").reverse().join("-");
 }
 </script>
 
@@ -112,7 +156,7 @@ function decline(item: any) {
       <v-data-table
         v-if="tab === 0"
         :headers="headersProcessed"
-        :items="ordersProcessed"
+        :items="processed"
         :search="search"
         item-key="name"
         items-per-page="5"
@@ -198,11 +242,14 @@ function decline(item: any) {
       <v-data-table
         v-if="tab === 2"
         :headers="headersAutomatic"
-        :items="ordersAutomatic"
+        :items="automatic"
         :search="search"
         item-key="name"
         items-per-page="5"
       >
+        <template v-slot:[`item.dateTime`]="{ item }">
+          {{ convertDateTime(item.dateTime) }}
+        </template>
       </v-data-table>
     </v-responsive>
   </v-container>

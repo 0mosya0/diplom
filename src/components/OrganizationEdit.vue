@@ -1,17 +1,66 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
+import { isEqual } from "lodash";
 
-const address = ref("г. Минск ул. Ульяновская улица, д. 5");
-const email = ref("info@poliklinika6.by");
-const name = ref(
-  "6-я центральная районная клиническая поликлиника Ленинского района г. Минска"
-);
-const pan = ref("101224683");
+const address = ref<string | null>(null);
+const email = ref<string | null>(null);
+const name = ref<string | null>(null);
+const pan = ref<string | null>(null);
 const password = ref(null);
 const passwordNew = ref(null);
 const passwordNewRepeated = ref(null);
 const loading = ref(false);
 const form = ref(true);
+
+const route = useRoute();
+
+interface OrganizationInfo {
+  address: string;
+  email: string;
+  name: string;
+  pan: string;
+}
+
+const initialOrganizationInfo = ref<OrganizationInfo | null>(null);
+
+const isOrganizationInfoUpdated = computed(
+  () =>
+    !isEqual(initialOrganizationInfo.value, {
+      address: address.value,
+      email: email.value,
+      name: name.value,
+      pan: pan.value,
+    })
+);
+const disabledUpdatePassword = computed(
+  () => !password.value && !passwordNew.value && !passwordNewRepeated.value
+);
+
+onMounted(async () => {
+  await getOrganizationInfo();
+});
+
+async function getOrganizationInfo() {
+  try {
+    const { data: organizationInfo } = await axios.get(
+      `/api/v1/organizations/${route.params.id}`
+    );
+    email.value = organizationInfo.email;
+    address.value = organizationInfo.address;
+    name.value = organizationInfo.name;
+    pan.value = organizationInfo.pan;
+    initialOrganizationInfo.value = {
+      address: address.value!,
+      email: email.value!,
+      name: name.value!,
+      pan: pan.value!,
+    };
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 function onSubmit() {
   if (!form.value) return;
@@ -34,8 +83,7 @@ function regNumber(value: string) {
   <v-container>
     <v-form v-model="form" @submit.prevent="onSubmit">
       <h3>
-        6-я центральная районная клиническая поликлиника Ленинского района г.
-        Минска
+        {{ name }}
       </h3>
       <v-card-text>
         <v-row align="center" dense>
@@ -82,7 +130,9 @@ function regNumber(value: string) {
 
         <v-row>
           <v-col align="end">
-            <v-btn :disabled="!form" color="blue-grey-darken-2"
+            <v-btn
+              :disabled="!isOrganizationInfoUpdated"
+              color="blue-grey-darken-2"
               >Сохранить</v-btn
             >
           </v-col>
@@ -138,7 +188,7 @@ function regNumber(value: string) {
 
         <v-row>
           <v-col align="end">
-            <v-btn :disabled="!form" color="blue-grey-darken-2"
+            <v-btn :disabled="disabledUpdatePassword" color="blue-grey-darken-2"
               >Изменить пароль</v-btn
             >
           </v-col>
